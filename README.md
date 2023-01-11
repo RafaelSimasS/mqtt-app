@@ -1,4 +1,4 @@
-<h1> Mqtt-App for Facial Recogniton Project</h1>
+<h1> Mqtt-App for Facial Recognition Project</h1>
 
 <ol> 
   <li>
