@@ -1,9 +1,10 @@
 import { StyleSheet, Text, View } from "react-native";
+import React, { Component } from "react";
 
 // Componentes:
-import React, { Component } from "react";
 import HomeScreen from "./Screens/Home";
 import AjustesScreen from "./Screens/Ajustes";
+import NewUser from "./Screens/NewUser";
 
 // Bibliotecas Externas:
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -11,6 +12,7 @@ import { createMaterialBottomTabNavigator } from "@react-navigation/material-bot
 import { NavigationContainer } from "@react-navigation/native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 const Tab = createMaterialBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 function MyTabs() {
   return (
@@ -35,7 +37,7 @@ function MyTabs() {
       />
 
       <Tab.Screen
-        name="Configuracoes"
+        name="Settings"
         component={AjustesScreen} // Profile Screen
         options={{
           tabBarLabel: "Ajustes",
@@ -43,7 +45,6 @@ function MyTabs() {
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="cog" color={color} size={30} />
           ),
-         
         }}
       />
     </Tab.Navigator>
@@ -54,7 +55,11 @@ export default function App() {
   return (
     <View style={styles.container}>
       <NavigationContainer>
-        <MyTabs />
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen name="Home" component={MyTabs} />
+
+          <Stack.Screen name="NewUser" component={NewUser} />
+        </Stack.Navigator>
       </NavigationContainer>
     </View>
   );
