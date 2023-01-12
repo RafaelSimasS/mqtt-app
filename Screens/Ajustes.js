@@ -4,22 +4,17 @@ import InputField from "../src/InputField";
 import CustomButtom from "../src/Button";
 import StatusIcon from "../src/StatusIcon";
 import { Appearance } from "react-native";
-// const client = new Paho.Client(
-//   "broker.hivemq.com",
-//   Number(8000),
-//   "/mqtt",
-//   "mqttx_2b8173ac"
-// );
+import Paho from "paho-mqtt";
 
-function Ajustes() {
+function Ajustes({ navigation }) {
   const [iPvalue, setIpValue] = React.useState("");
   const [ipStatus, setIpStatus] = React.useState("");
 
   const [topicValue, setTopicValue] = React.useState("");
   const [topicStatus, setTopicStatus] = React.useState("");
 
-  const [portValue, setPortValue] = React.useState("");
-  const [portStatus, setPortStatus] = React.useState("");
+  const [portValue, setPortValue] = React.useState(0);
+  const [portStatus, setPortStatus] = React.useState(0);
 
   const [isConnected, setIsConnected] = React.useState("red");
 
@@ -41,16 +36,40 @@ function Ajustes() {
       setIpStatus(iPvalue);
       setPortStatus(portValue);
       setTopicStatus(topicValue);
+
+      const client = new Paho.Client(
+        iPvalue,
+        Number(portValue),
+        "mqttx_2b8173ac"
+      );
+
+      client.onConnectionLost = OnConnectionLost;
+      client.onMessageArrived = OnMessageArrived;
+
+      function OnConnectionLost(responseObject) {
+        if (responseObject.errorCode !== 0) {
+          console.log("onConnectionLost:" + responseObject.errorMessage);
+          setIsConnected("red");
+        }
+      }
+      // called when a message arrives
+      function OnMessageArrived(message) {
+        console.log("Mensagem Recebida:" + message.payloadString);
+      }
+
+      client.connect({ onSuccess: onConnect });
+      function onConnect() {
+        // Once a connection has been made, make a subscription and send a message.
+
+        console.log("onConnect");
+        client.subscribe(topicValue);
+        setIsConnected("green");
+        navigation.navigate("HomeScreen", {
+          portKey: portValue,
+          IpValueKey: iPvalue,
+        });
+      }
     }
-  };
-  const handleToggle = () => {
-    console.log("Oi casada");
-    // client.connect({ onSuccess: onConnect });
-    // function onConnect() {
-    //   // Once a connection has been made, make a subscription and send a message.
-    //   console.log("onConnect");
-    //   client.subscribe("/teste");
-    // }
   };
 
   return (
