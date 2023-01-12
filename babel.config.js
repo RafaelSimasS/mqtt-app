@@ -4,10 +4,3 @@ module.exports = function (api) {
     presets: ["babel-preset-expo"],
   };
 };
-module.exports = {
-  project: {
-    ios: {},
-    android: {},
-  },
-  assets: ["./assets/fonts/"],
-};
