@@ -8,38 +8,32 @@ import AddUser from "../src/AddUser";
 import Notifications from "../src/Notifications";
 import Paho from "paho-mqtt";
 
-const client = new Paho.Client("broker.emqx.io", Number(8083), "oi153");
-
-function Home() {
+function Home({ navigation }) {
   const [text, setText] = useState("Sem Novas Mensagens");
 
-  client.onConnectionLost = OnConnectionLost;
-  client.onMessageArrived = OnMessageArrived;
+  // const client = new Paho.Client(
+  //   navigation.params.IpValueKey,
+  //   Number(navigation.params.portKey),
+  //   "mqttx_2b8173ac"
+  // );
+  // client.onConnectionLost = OnConnectionLost;
+  // client.onMessageArrived = OnMessageArrived;
 
-  function OnConnectionLost(responseObject) {
-    if (responseObject.errorCode !== 0) {
-      console.log("onConnectionLost:" + responseObject.errorMessage);
-    }
-  }
-  // called when a message arrives
-  function OnMessageArrived(message) {
-    console.log("Mensagem Recebida:" + message.payloadString);
-    setText(message.payloadString);
-  }
-
-  const [isEnabled, setIsEnabled] = React.useState(true);
+  // function OnConnectionLost(responseObject) {
+  //   if (responseObject.errorCode !== 0) {
+  //     console.log("onConnectionLost:" + responseObject.errorMessage);
+  //   }
+  // }
+  // // called when a message arrives
+  // function OnMessageArrived(message) {
+  //   console.log("Mensagem Recebida:" + message.payloadString);
+  //   setText(message.payloadString);
+  // }
   const handleToggle = () => {
-    setIsEnabled(!isEnabled);
-    if (!isEnabled === true) {
-      console.log("Oi casada");
-      client.connect({ onSuccess: onConnect });
-      function onConnect() {
-        // Once a connection has been made, make a subscription and send a message.
-        console.log("Connected");
-        client.subscribe("/teste");
-      }
-    }
+    console.log("Oi");
   };
+  const [isEnabled, setIsEnabled] = React.useState(true);
+
   return (
     <View style={styles.container}>
       <Text>Home Screen</Text>
@@ -50,7 +44,7 @@ function Home() {
         value={isEnabled}
       />
       <Text>{text}</Text>
-      <AddUser />
+      <AddUser onPress={() => navigation.navigate("NewUser")} />
     </View>
   );
 }
