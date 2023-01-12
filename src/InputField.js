@@ -8,7 +8,6 @@ function InputField(props) {
         style={{ paddingLeft: 10 }}
         placeholderTextColor="#605f61"
         editable
-        maxLength={15}
         multiline={false}
         {...props}
       />
