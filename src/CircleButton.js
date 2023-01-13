@@ -4,19 +4,30 @@ import { StyleSheet, View, TouchableOpacity } from "react-native";
 // Bibliotecas Externas:
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
-function AddUser(props) {
+function CircleButton(props) {
   return (
-    <TouchableOpacity style={styles.elipse} {...props}>
+    <TouchableOpacity
+      style={[
+        styles.elipse,
+        {
+          backgroundColor: props.backgroundColor,
+          right: props.right,
+          left: props.left,
+          bottom: props.bottom,
+          top: props.top,
+        },
+      ]}
+      {...props}
+    >
+      {/* account-multiple-plus */}
       <MaterialCommunityIcons
-        name="account-multiple-plus"
-        color={"#fff"}
+        name={props.IconName}
+        color={props.IconColor || "#fff"}
         size={35.1}
       />
     </TouchableOpacity>
   );
 }
-
-const dist = 20;
 const elipseValues = 68;
 const styles = StyleSheet.create({
   elipse: {
@@ -27,9 +38,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
-    backgroundColor: "#004751",
-    right: dist,
-    bottom: dist,
   },
   //   button: {
   //     width: 30,
@@ -39,4 +47,4 @@ const styles = StyleSheet.create({
   //   },
 });
 
-export default AddUser;
+export default CircleButton;
