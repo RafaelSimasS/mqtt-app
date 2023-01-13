@@ -9,6 +9,6 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
-oi.js
+backup.txt
 # macOS
 .DS_Store
