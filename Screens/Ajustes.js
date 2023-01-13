@@ -3,8 +3,9 @@ import { View, Text, StyleSheet } from "react-native";
 import InputField from "../src/InputField";
 import CustomButtom from "../src/Button";
 import StatusIcon from "../src/StatusIcon";
-import { Appearance } from "react-native";
 import Paho from "paho-mqtt";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function Ajustes({ navigation }) {
   const [iPvalue, setIpValue] = React.useState("");
@@ -16,32 +17,77 @@ function Ajustes({ navigation }) {
   const [portValue, setPortValue] = React.useState(0);
   const [portStatus, setPortStatus] = React.useState(0);
 
+  const [conncet1, setConnect1] = useState(false);
+  const [conncet2, setConnect2] = useState(false);
+  const [conncet3, setConnect3] = useState(false);
   const [isConnected, setIsConnected] = React.useState("red");
 
-  const colorScheme = Appearance.getColorScheme();
-  if (colorScheme === "dark") {
-    console.log("Oi: " + typeof styles);
-  }
+  const handleStorageValue = (key, setConnect, setValue, setStatus) => {
+    AsyncStorage.getItem(key).then((value) => {
+      if (value) {
+        setConnect(true);
+        setValue(value);
+        setStatus(value);
+      } else {
+        setConnect(false);
+        setValue("");
+        setStatus("");
+      }
+    });
+  };
+
+  useEffect(() => {
+    handleStorageValue("ipKey", setConnect2, setIpValue, setIpStatus);
+    handleStorageValue("portKey", setConnect1, setPortValue, setPortStatus);
+    handleStorageValue("topicKey", setConnect3, setTopicValue, setTopicStatus);
+  }, []);
+
+  useEffect(() => {
+    if (conncet1 === true && conncet2 === true && conncet3 === true) {
+      const id_Client =
+        "mqtt_" +
+        Math.floor((1 + Math.random()) * 0x10000)
+          .toString(16)
+          .substring(1);
+      const client = new Paho.Client(iPvalue, Number(portValue), id_Client);
+
+      client.onConnectionLost = OnConnectionLost;
+      client.onMessageArrived = OnMessageArrived;
+      function OnConnectionLost(responseObject) {
+        if (responseObject.errorCode !== 0) {
+          console.log("Desconectado" + responseObject.errorMessage);
+          setIsConnected("red");
+        }
+      }
+      // called when a message arrives
+      function OnMessageArrived(message) {
+        console.log(
+          "Mensagem Recebida - Ajustes Refresh: " + message.payloadString
+        );
+        setText(message.payloadString);
+      }
+
+      client.connect({ onSuccess: onConnect });
+      function onConnect() {
+        console.log("Conectado ao Boker");
+        setIsConnected("green");
+        client.subscribe(topicValue);
+      }
+    }
+  }, [conncet1, conncet2, conncet3]);
 
   const handlePress = () => {
-    if (
-      iPvalue !== undefined &&
-      iPvalue !== "" &&
-      portValue !== undefined &&
-      portValue !== "" &&
-      topicValue !== undefined &&
-      topicValue !== ""
-    ) {
+    if (iPvalue && portValue && topicValue) {
       console.log("Entrou");
-      setIpStatus(iPvalue);
-      setPortStatus(portValue);
-      setTopicStatus(topicValue);
 
-      const client = new Paho.Client(
-        iPvalue,
-        Number(portValue),
-        "mqttx_2b8173ac"
-      );
+      const id_Client =
+        "mqtt_" +
+        Math.floor((1 + Math.random()) * 0x10000)
+          .toString(16)
+          .substring(1);
+      console.log(id_Client);
+
+      const client = new Paho.Client(iPvalue, Number(portValue), id_Client);
 
       client.onConnectionLost = OnConnectionLost;
       client.onMessageArrived = OnMessageArrived;
@@ -54,20 +100,23 @@ function Ajustes({ navigation }) {
       }
       // called when a message arrives
       function OnMessageArrived(message) {
-        console.log("Mensagem Recebida:" + message.payloadString);
+        console.log("Mensagem Recebida - Ajuste:" + message.payloadString);
       }
 
       client.connect({ onSuccess: onConnect });
       function onConnect() {
         // Once a connection has been made, make a subscription and send a message.
+        AsyncStorage.setItem("ipKey", iPvalue);
+        AsyncStorage.setItem("portKey", portValue.toString());
+        AsyncStorage.setItem("topicKey", topicValue);
+        console.log("Conectado ao Boker");
 
-        console.log("onConnect");
         client.subscribe(topicValue);
         setIsConnected("green");
-        navigation.navigate("HomeScreen", {
-          portKey: portValue,
-          IpValueKey: iPvalue,
-        });
+        setIpStatus(iPvalue);
+        setPortStatus(portValue);
+        setTopicStatus(topicValue);
+        // navigation.navigate("Feed");
       }
     }
   };
