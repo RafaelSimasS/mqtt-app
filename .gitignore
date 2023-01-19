@@ -10,5 +10,6 @@ npm-debug.*
 *.orig.*
 web-build/
 backup.txt
+ColorPicker.css
 # macOS
 .DS_Store
