@@ -14,13 +14,13 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 const Tab = createMaterialBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-function MyTabs() {
+function MyTabs({ navigation, route }) {
   return (
     <Tab.Navigator
       initialRouteName="Feed"
-      activeColor="#aeb4e8"
+      activeColor="#00f800"
       inactiveColor="#ffffff"
-      labelStyle={{ fontSize: 12 }}
+      labelStyle={{ fontSize: 28 }}
       barStyle={{ backgroundColor: "#004751" }}
       backBehavior="history"
     >
@@ -28,6 +28,7 @@ function MyTabs() {
         name="Feed"
         component={HomeScreen} //Home Screen
         options={{
+          title: "Início",
           tabBarLabel: "Inicio",
           tabBarAccessibilityLabel: "Inicio",
           tabBarIcon: ({ color }) => (
@@ -45,6 +46,7 @@ function MyTabs() {
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="cog" color={color} size={30} />
           ),
+          title: "Ajustes",
         }}
       />
     </Tab.Navigator>
@@ -55,10 +57,32 @@ export default function App() {
   return (
     <View style={styles.container}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
-          <Stack.Screen name="Home" component={MyTabs} />
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: "#71ccc7",
+            },
+            headerTintColor: "#fff",
+            headerTitleStyle: {
+              fontWeight: "400",
+            },
+            headerTitleAlign: "center",
+          }}
+        >
+          <Stack.Screen
+            name="Home"
+            component={MyTabs}
+            options={{ title: "Inicio" }}
+          />
 
-          <Stack.Screen name="NewUser" component={NewUser} />
+          <Stack.Screen
+            name="NewUser"
+            component={NewUser}
+            options={{
+              title: "Cadastro de Rosto",
+            }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </View>
