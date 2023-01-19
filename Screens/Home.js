@@ -12,16 +12,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function Home({ navigation }) {
   const [text, setText] = useState("Sem Novas Mensagens");
+
   const [ipValue, setIPValue] = useState("");
   const [portValue, setPortValue] = useState(0);
   const [topicValue, setTopicValue] = React.useState("");
+
   const [conncet1, setConnect1] = useState(false);
   const [conncet2, setConnect2] = useState(false);
   const [conncet3, setConnect3] = useState(false);
 
+  const [isConnected, setIsConnected] = useState(false);
+
   const handleStorageValue = (key, setConnect, setValue) => {
     AsyncStorage.getItem(key).then((value) => {
-      if (value !== null && value !== "") {
+      if (value) {
         setConnect(true);
         setValue(value);
       } else {
@@ -32,40 +36,48 @@ function Home({ navigation }) {
   };
 
   useEffect(() => {
-    handleStorageValue("ipKey", setConnect2, setIPValue);
-    handleStorageValue("portKey", setConnect1, setPortValue);
-    handleStorageValue("topicKey", setConnect3, setTopicValue);
-  }, []);
+    const unsubscribe = navigation.addListener("focus", () => {
+      handleStorageValue("ipKey", setConnect2, setIPValue);
+      handleStorageValue("portKey", setConnect1, setPortValue);
+      handleStorageValue("topicKey", setConnect3, setTopicValue);
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   useEffect(() => {
-    if (conncet1 === true && conncet2 === true && conncet3 === true) {
-      const id_Client =
-        "mqtt_" +
-        Math.floor((1 + Math.random()) * 0x10000)
-          .toString(16)
-          .substring(1);
-      const client = new Paho.Client(ipValue, Number(portValue), id_Client);
-      client.onConnectionLost = OnConnectionLost;
-      client.onMessageArrived = OnMessageArrived;
-      function OnConnectionLost(responseObject) {
-        if (responseObject.errorCode !== 0) {
-          console.log("Desconectado" + responseObject.errorMessage);
+    const unsubscribe = navigation.addListener("focus", () => {
+      if (conncet1 && conncet2 && conncet3 && !isConnected) {
+        const id_Client =
+          "mqtt_" +
+          Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+        const client = new Paho.Client(ipValue, Number(portValue), id_Client);
+        client.onConnectionLost = OnConnectionLost;
+        client.onMessageArrived = OnMessageArrived;
+        function OnConnectionLost(responseObject) {
+          if (responseObject.errorCode !== 0) {
+            console.log("Desconectado" + responseObject.errorMessage);
+            setIsConnected(false);
+          }
+        }
+        // called when a message arrives
+        function OnMessageArrived(message) {
+          console.log(
+            "Mensagem Recebida - Home Instantaneo:" + message.payloadString
+          );
+          setText(message.payloadString);
+        }
+        client.connect({ onSuccess: onConnect });
+        function onConnect() {
+          console.log("Conectado ao Boker");
+          setIsConnected(true);
+          client.subscribe(topicValue);
         }
       }
-      // called when a message arrives
-      function OnMessageArrived(message) {
-        console.log(
-          "Mensagem Recebida - Home Instantaneo:" + message.payloadString
-        );
-        setText(message.payloadString);
-      }
-      client.connect({ onSuccess: onConnect });
-      function onConnect() {
-        console.log("Conectado ao Boker");
-
-        client.subscribe(topicValue);
-      }
-    }
-  }, [conncet1, conncet2, conncet3]);
+    });
+    return unsubscribe;
+  }, [conncet1, conncet2, conncet3, navigation, isConnected]);
 
   const UpdateFeed = () => {
     AsyncStorage.getItem("ipKey").then((value) => setIPValue(value));
@@ -78,9 +90,6 @@ function Home({ navigation }) {
         .substring(1);
 
     console.log("Debbug");
-    console.log(id_Client);
-    console.log(ipValue);
-    console.log(portValue);
 
     if (ipValue && portValue && topicValue) {
       const client = new Paho.Client(ipValue, Number(portValue), id_Client);
@@ -89,6 +98,7 @@ function Home({ navigation }) {
       function OnConnectionLost(responseObject) {
         if (responseObject.errorCode !== 0) {
           console.log("Desconectado" + responseObject.errorMessage);
+          setIsConnected(false);
         }
       }
       // called when a message arrives
@@ -99,7 +109,7 @@ function Home({ navigation }) {
       client.connect({ onSuccess: onConnect });
       function onConnect() {
         console.log("Conectado ao Boker");
-
+        setIsConnected(true);
         client.subscribe(topicValue);
       }
     } else {
@@ -109,7 +119,6 @@ function Home({ navigation }) {
       );
     }
   };
-
   return (
     <View style={styles.container}>
       <View style={{ marginTop: 30 }}>
