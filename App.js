@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, PermissionsAndroid } from "react-native";
 import React, { Component } from "react";
 
-// Componentes:
+// Screens:
 import HomeScreen from "./Screens/Home";
 import AjustesScreen from "./Screens/Ajustes";
 import NewUser from "./Screens/NewUser";
+import FaceCam from "./Screens/FaceCam";
 
 // Bibliotecas Externas:
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -79,6 +80,13 @@ export default function App() {
           <Stack.Screen
             name="NewUser"
             component={NewUser}
+            options={{
+              title: "Cadastro de Rosto",
+            }}
+          />
+          <Stack.Screen
+            name="FaceCam"
+            component={FaceCam}
             options={{
               title: "Cadastro de Rosto",
             }}
