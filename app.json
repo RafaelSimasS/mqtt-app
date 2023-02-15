@@ -1,11 +1,11 @@
 {
   "expo": {
+    "userInterfaceStyle": "automatic",
     "name": "mqttAPPProjeto",
     "slug": "mqttAPPProjeto",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -29,6 +29,7 @@
       "supportsTablet": true
     },
     "android": {
+      "permissions": ["VIBRATE"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

@@ -6,6 +6,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import { NavigationContainer } from "@react-navigation/native";
 import Paho from "paho-mqtt";
 import * as Speech from "expo-speech";
+import { Appearance, useColorScheme } from "react-native";
 
 // Components Locais
 import CircleButton from "../src/CircleButton";
@@ -15,7 +16,6 @@ import { horizontalScale, moderateScale, verticalScale } from "../src/Metrics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function Home({ navigation }) {
-  const [text, setText] = useState("Sem Novas Mensagens");
   const [arrivedMessage, setArrivedMessage] = useState([]);
 
   const [ipValue, setIPValue] = useState("");
@@ -27,15 +27,6 @@ function Home({ navigation }) {
   const [conncet3, setConnect3] = useState(false);
 
   const [isConnected, setIsConnected] = useState(false);
-
-  const appendMessageFeed = [];
-  const DATA = [
-    {
-      Message: "Rafael Está Na porta",
-      ImageBS: "",
-      id: "2",
-    },
-  ];
 
   const handleStorageValue = (key, setConnect, setValue) => {
     AsyncStorage.getItem(key).then((value) => {
@@ -78,12 +69,16 @@ function Home({ navigation }) {
         // called when a message arrives
         function OnMessageArrived(message) {
           console.log(
-            "Mensagem Recebida - Home Instantaneo:" + message.payloadString
+            "Mensagem Recebida - Focus:" + message.payloadString?.message
           );
-          appendMessageFeed.push(JSON.parse(message.payloadString));
-          setArrivedMessage(appendMessageFeed);
+          var messageToOject = JSON.parse(message.payloadString);
 
-          // setText(message.payloadString);
+          if (!arrivedMessage[0]?.message) {
+            setArrivedMessage([messageToOject]);
+          } else {
+            setArrivedMessage([...arrivedMessage, messageToOject]);
+          }
+          console.log(arrivedMessage);
         }
         client.connect({ onSuccess: onConnect });
         function onConnect() {
@@ -106,12 +101,8 @@ function Home({ navigation }) {
         .toString(16)
         .substring(1);
 
-    console.log("Debbug");
-
     if (ipValue && portValue && topicValue) {
       const client = new Paho.Client(ipValue, Number(portValue), id_Client);
-      client.onConnectionLost = OnConnectionLost;
-      client.onMessageArrived = OnMessageArrived;
       function OnConnectionLost(responseObject) {
         if (responseObject.errorCode !== 0) {
           console.log("Desconectado" + responseObject.errorMessage);
@@ -120,12 +111,24 @@ function Home({ navigation }) {
       }
       // called when a message arrives
       function OnMessageArrived(message) {
-        console.log("Mensagem Recebida - Home:" + message.payloadString);
-        appendMessageFeed.push(JSON.parse(message.payloadString));
-        setArrivedMessage(appendMessageFeed);
+        console.log(
+          "Mensagem Recebida - Update:" + message.payloadString?.message
+        );
 
-        // setText(message.payloadString);
+        const appendMessageFeed = [];
+        var messageToOject = JSON.parse(message.payloadString);
+
+        if (!arrivedMessage[0]?.message) {
+          setArrivedMessage([messageToOject]);
+        } else {
+          setArrivedMessage([...arrivedMessage, messageToOject]);
+        }
+
+        console.log("UPDATE:");
+        console.log(arrivedMessage);
       }
+      client.onConnectionLost = OnConnectionLost;
+      client.onMessageArrived = OnMessageArrived;
       client.connect({ onSuccess: onConnect });
       function onConnect() {
         console.log("Conectado ao Boker");
@@ -152,22 +155,23 @@ function Home({ navigation }) {
   };
 
   useEffect(() => {
-    if (DATA.length > 0) {
-      Speech.speak(DATA[DATA.length - 1].Message, {
+    if (arrivedMessage[0]?.message) {
+      console.log("Speak: " + arrivedMessage[0]?.message);
+      Speech.speak(arrivedMessage[0]?.message, {
         language: "pt-BR ",
         pitch: 0.7,
         rate: 0.85,
         voice: "Enhanced",
       });
     } else {
-      Speech.speak(text, {
+      Speech.speak("Sem Novas Mensagens", {
         language: "pt-BR",
         pitch: 0.7,
         rate: 0.85,
         voice: "Enhanced",
       });
     }
-  }, [text, DATA]);
+  }, [arrivedMessage]);
 
   const MessageBox = (props) => {
     const base64 = props.Image.toString("utf-8");
@@ -188,15 +192,23 @@ function Home({ navigation }) {
         <Text style={styles.TextStyle}>Feed de Mensagens</Text>
       </View>
       <View style={styles.messageBox}>
-        {DATA.length < 1 ? (
-          <Text>{text}</Text>
+        {!arrivedMessage[0]?.message ? (
+          <Text
+            style={{
+              textAlign: "center",
+              backgroundColor: "#859b9e",
+              borderRadius: 10,
+            }}
+          >
+            Sem Novas Mensagens
+          </Text>
         ) : (
           <FlatList
-            data={DATA}
+            data={arrivedMessage}
             renderItem={({ item }) => (
-              <MessageBox Message={item.Message} Image={item.ImageBS} />
+              <MessageBox Message={item?.message} Image={item?.image} />
             )}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item?.id}
           />
         )}
       </View>
@@ -206,8 +218,8 @@ function Home({ navigation }) {
         backgroundColor="#004751"
         IconName="account-multiple-plus"
         IconColor="#fff"
-        bottom={20}
         right={20}
+        bottom={20}
       />
       <CircleButton
         onPress={UpdateFeed}
@@ -215,7 +227,7 @@ function Home({ navigation }) {
         IconName="autorenew"
         IconColor="#fff"
         right={20}
-        bottom={102}
+        bottom={100}
       />
     </View>
   );
@@ -252,18 +264,14 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   image: {
-    minWidth: horizontalScale(100),
-    minHeight: verticalScale(100),
+    minWidth: horizontalScale(200),
+    minHeight: verticalScale(200),
     resizeMode: "contain",
-    borderWidth: 1,
-    borderColor: "red",
   },
   messageBox: {
     minWidth: horizontalScale(250),
-    minHeight: verticalScale(300),
+    maxHeight: verticalScale(400),
     marginTop: moderateScale(30),
-    backgroundColor: "#004751",
-    borderRadius: 20,
     paddingBottom: 10,
   },
 });

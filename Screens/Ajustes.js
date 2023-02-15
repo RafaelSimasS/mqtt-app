@@ -76,10 +76,7 @@ function Ajustes({ navigation }) {
         }
         // called when a message arrives
         function OnMessageArrived(message) {
-          console.log(
-            "Mensagem Recebida - Ajustes Refresh: " + message.payloadString
-          );
-          setText(message.payloadString);
+          console.log("");
         }
 
         client.connect({ onSuccess: onConnect });
@@ -121,7 +118,7 @@ function Ajustes({ navigation }) {
       }
       // called when a message arrives
       function OnMessageArrived(message) {
-        console.log("Mensagem Recebida - Ajuste:" + message.payloadString);
+        console.log("");
       }
 
       client.connect({ onSuccess: onConnect });

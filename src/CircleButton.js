@@ -28,7 +28,7 @@ function CircleButton(props) {
     </TouchableOpacity>
   );
 }
-const elipseValues = 68;
+const elipseValues = 58;
 const styles = StyleSheet.create({
   elipse: {
     width: elipseValues,
