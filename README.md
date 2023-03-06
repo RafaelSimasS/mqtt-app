@@ -15,7 +15,7 @@
         <p> Uses a Raspberry Pi for facial Recognition with the OpenCV Library.</p>
       </li>
       <li>
-        <p>Uses an API for saving image samples in a MongoDB collection.</p>
+        <p>Uses an API for saving image samples in a PostgreSQL Database.</p>
       </li>
     </ul>
   </li>
