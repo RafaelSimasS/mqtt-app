@@ -6,8 +6,8 @@ import { Camera, CameraType } from "expo-camera";
 import * as FaceDetector from "expo-face-detector";
 import * as ImagePicker from "expo-image-picker";
 
-import CircleButton from "../src/CircleButton";
-import { horizontalScale, moderateScale, verticalScale } from "../src/Metrics";
+import CircleButton from "../components/CircleButton";
+import { horizontalScale, moderateScale, verticalScale } from "../components/Metrics";
 
 const FaceCam = ({ route, navigation }) => {
   const [type, setType] = useState(CameraType.front);

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import InputField from "../src/InputField";
-import CustomButtom from "../src/Button";
-import StatusIcon from "../src/StatusIcon";
+import InputField from "../components/InputField";
+import CustomButtom from "../components/Button";
+import StatusIcon from "../components/StatusIcon";
 import Paho from "paho-mqtt";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";

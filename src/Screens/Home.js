@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, Alert, FlatList, Image } from "react-native";
+import { Alert, FlatList, Image, StyleSheet, Text, View } from "react-native";
 
 // Bibliotecas Externas:
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { NavigationContainer } from "@react-navigation/native";
-import Paho from "paho-mqtt";
 import * as Speech from "expo-speech";
-import { Appearance, useColorScheme } from "react-native";
+import Paho from "paho-mqtt";
 
 // Components Locais
-import CircleButton from "../src/CircleButton";
-import Notifications from "../src/Notifications";
-import { horizontalScale, moderateScale, verticalScale } from "../src/Metrics";
+import CircleButton from "../components/CircleButton";
+import { horizontalScale, moderateScale, verticalScale } from "../Metrics";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 

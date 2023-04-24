@@ -2,8 +2,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import React, { useEffect, useState } from "react";
 import { Button, StyleSheet, View, Text, Switch, Alert } from "react-native";
-import CustomButtom from "../src/Button";
-import InputField from "../src/InputField";
+import CustomButtom from "../components/Button";
+import InputField from "../components/InputField";
 
 const NewUser = ({ navigation }) => {
   const [userName, setUserName] = useState("");

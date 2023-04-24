@@ -29,14 +29,23 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions": ["VIBRATE"],
+      "permissions": [
+        "android.permission.VIBRATE",
+        "android.permission.RECORD_AUDIO"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.leafa4r.mqttAPPProjeto"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a5a97db4-7399-4792-a076-a1fc167be0c7"
+      }
     }
   }
 }
