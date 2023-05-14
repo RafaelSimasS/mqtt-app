@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Alert, FlatList, Image, StyleSheet, Text, View } from "react-native";
-
+import { Vibration } from "expo";
 // Bibliotecas Externas:
 import * as Speech from "expo-speech";
 import Paho from "paho-mqtt";
+import _ from "lodash";
 
 // Components Locais
 import CircleButton from "../components/CircleButton";
-import { horizontalScale, moderateScale, verticalScale } from "../Metrics";
+import { horizontalScale, moderateScale, verticalScale } from "../components/Metrics";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -150,23 +151,29 @@ function Home({ navigation }) {
     }
   };
 
+  
+const debouncedSpeak = _.debounce((message) => {
+  if (message) {
+    console.log("Speak: " + message);
+    Speech.speak(message, {
+      language: "pt-BR ",
+      pitch: 0.7,
+      rate: 0.85,
+      voice: "Enhanced",
+    });
+  } else {
+    Speech.speak("Sem Novas Mensagens", {
+      language: "pt-BR",
+      pitch: 0.7,
+      rate: 0.85,
+      voice: "Enhanced",
+    });
+    Vibration.vibrate(500);
+  }
+}, 500);
+
   useEffect(() => {
-    if (arrivedMessage[0]?.message) {
-      console.log("Speak: " + arrivedMessage[0]?.message);
-      Speech.speak(arrivedMessage[0]?.message, {
-        language: "pt-BR ",
-        pitch: 0.7,
-        rate: 0.85,
-        voice: "Enhanced",
-      });
-    } else {
-      Speech.speak("Sem Novas Mensagens", {
-        language: "pt-BR",
-        pitch: 0.7,
-        rate: 0.85,
-        voice: "Enhanced",
-      });
-    }
+    debouncedSpeak(arrivedMessage[0]?.message);
   }, [arrivedMessage]);
 
   const MessageBox = (props) => {
