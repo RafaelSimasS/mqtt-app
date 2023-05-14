@@ -2,10 +2,10 @@ import { StyleSheet, Text, View, PermissionsAndroid } from "react-native";
 import React, { Component } from "react";
 
 // Screens:
-import HomeScreen from "./Screens/Home";
-import AjustesScreen from "./Screens/Ajustes";
-import NewUser from "./Screens/NewUser";
-import FaceCam from "./Screens/FaceCam";
+import HomeScreen from "./src/Screens/Home";
+import AjustesScreen from "./src/Screens/Ajustes";
+import NewUser from "./src/Screens/NewUser";
+import FaceCam from "./src/Screens/FaceCam";
 
 // Bibliotecas Externas:
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
