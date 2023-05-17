@@ -13,3 +13,4 @@ backup.txt
 deleteAfter/
 # macOS
 .DS_Store
+teste.*

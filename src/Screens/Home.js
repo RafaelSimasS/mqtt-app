@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Alert, FlatList, Image, StyleSheet, Text, View } from "react-native";
-import { Vibration } from "expo";
+// import { Vibration } from "expo";
+import { Vibration } from "react-native";
 // Bibliotecas Externas:
 import * as Speech from "expo-speech";
 import Paho from "paho-mqtt";
@@ -8,7 +9,11 @@ import _ from "lodash";
 
 // Components Locais
 import CircleButton from "../components/CircleButton";
-import { horizontalScale, moderateScale, verticalScale } from "../components/Metrics";
+import {
+  horizontalScale,
+  moderateScale,
+  verticalScale,
+} from "../components/Metrics";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -25,8 +30,8 @@ function Home({ navigation }) {
 
   const [isConnected, setIsConnected] = useState(false);
 
-  const handleStorageValue = (key, setConnect, setValue) => {
-    AsyncStorage.getItem(key).then((value) => {
+  const handleStorageValue = async (key, setConnect, setValue) => {
+    await AsyncStorage.getItem(key).then((value) => {
       if (value) {
         setConnect(true);
         setValue(value);
@@ -120,9 +125,6 @@ function Home({ navigation }) {
         } else {
           setArrivedMessage([...arrivedMessage, messageToOject]);
         }
-
-        console.log("UPDATE:");
-        console.log(arrivedMessage);
       }
       client.onConnectionLost = OnConnectionLost;
       client.onMessageArrived = OnMessageArrived;
@@ -151,26 +153,26 @@ function Home({ navigation }) {
     }
   };
 
-  
-const debouncedSpeak = _.debounce((message) => {
-  if (message) {
-    console.log("Speak: " + message);
-    Speech.speak(message, {
-      language: "pt-BR ",
-      pitch: 0.7,
-      rate: 0.85,
-      voice: "Enhanced",
-    });
-  } else {
-    Speech.speak("Sem Novas Mensagens", {
-      language: "pt-BR",
-      pitch: 0.7,
-      rate: 0.85,
-      voice: "Enhanced",
-    });
-    Vibration.vibrate(500);
-  }
-}, 500);
+  const debouncedSpeak = _.debounce((message) => {
+    if (message) {
+      // console.log("Speak: " + message);
+      Speech.speak(message, {
+        language: "pt-BR ",
+        pitch: 0.7,
+        rate: 0.85,
+        voice: "Enhanced",
+      });
+      Vibration.vibrate([500, 250, 500, 250, 500, 250, 250, 125]);
+    } else {
+      Speech.speak("Sem Novas Mensagens", {
+        language: "pt-BR",
+        pitch: 0.7,
+        rate: 0.85,
+        voice: "Enhanced",
+      });
+      Vibration.vibrate([500, 250, 500, 250]);
+    }
+  }, 500);
 
   useEffect(() => {
     debouncedSpeak(arrivedMessage[0]?.message);

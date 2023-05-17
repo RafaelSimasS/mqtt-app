@@ -14,8 +14,8 @@ function Ajustes({ navigation }) {
   const [topicValue, setTopicValue] = React.useState("");
   const [topicStatus, setTopicStatus] = React.useState("");
 
-  const [portValue, setPortValue] = React.useState(0);
-  const [portStatus, setPortStatus] = React.useState(0);
+  const [portValue, setPortValue] = React.useState("");
+  const [portStatus, setPortStatus] = React.useState("");
 
   const [conncet1, setConnect1] = useState(false);
   const [conncet2, setConnect2] = useState(false);
@@ -68,20 +68,16 @@ function Ajustes({ navigation }) {
         client.onMessageArrived = OnMessageArrived;
         function OnConnectionLost(responseObject) {
           if (responseObject.errorCode !== 0) {
-            console.log("Desconectado" + responseObject.errorMessage);
             setIsConnected(false);
             setStatusBadge("red");
             setStatusText("Não Conectado!");
           }
         }
         // called when a message arrives
-        function OnMessageArrived(message) {
-          console.log("");
-        }
+        function OnMessageArrived(message) {}
 
         client.connect({ onSuccess: onConnect });
         function onConnect() {
-          console.log("Conectado ao Boker");
           setIsConnected(true);
           setStatusBadge("green");
           setStatusText("Conectado!");
@@ -94,14 +90,11 @@ function Ajustes({ navigation }) {
 
   const handlePress = () => {
     if (iPvalue && portValue && topicValue) {
-      console.log("Entrou");
-
       const id_Client =
         "mqtt_" +
         Math.floor((1 + Math.random()) * 0x10000)
           .toString(16)
           .substring(1);
-      console.log(id_Client);
 
       const client = new Paho.Client(iPvalue, Number(portValue), id_Client);
 
@@ -110,16 +103,13 @@ function Ajustes({ navigation }) {
 
       function OnConnectionLost(responseObject) {
         if (responseObject.errorCode !== 0) {
-          console.log("onConnectionLost:" + responseObject.errorMessage);
           setIsConnected(false);
           setStatusBadge("red");
           setStatusText("Não Conectado!");
         }
       }
       // called when a message arrives
-      function OnMessageArrived(message) {
-        console.log("");
-      }
+      function OnMessageArrived(message) {}
 
       client.connect({ onSuccess: onConnect });
       function onConnect() {
@@ -127,7 +117,6 @@ function Ajustes({ navigation }) {
         AsyncStorage.setItem("ipKey", iPvalue);
         AsyncStorage.setItem("portKey", portValue.toString());
         AsyncStorage.setItem("topicKey", topicValue);
-        console.log("Conectado ao Boker");
 
         client.subscribe(topicValue);
         setIsConnected(true);
@@ -177,7 +166,7 @@ function Ajustes({ navigation }) {
           <View>
             <Text style={styles.TextStyle}>Porta</Text>
             <InputField
-              placeholder="1883"
+              placeholder="8083"
               onChangeText={(port) => setPortValue(port)}
               value={portValue}
             />
@@ -245,7 +234,7 @@ const styles = StyleSheet.create({
     minHeight: 22,
   },
   Title: {
-    Width: 150,
+    width: 150,
     minHeight: 22,
     fontSize: 16,
   },

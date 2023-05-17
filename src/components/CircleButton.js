@@ -16,6 +16,7 @@ function CircleButton(props) {
           bottom: props.bottom,
           top: props.top,
         },
+        props.style,
       ]}
       {...props}
     >

@@ -4,7 +4,7 @@ import React, { Component } from "react";
 // Screens:
 import HomeScreen from "./src/Screens/Home";
 import AjustesScreen from "./src/Screens/Ajustes";
-import NewUser from "./src/Screens/NewUser";
+import NewUser from "./src/Screens/Cadastro";
 import FaceCam from "./src/Screens/FaceCam";
 
 // Bibliotecas Externas:
@@ -12,6 +12,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import AddUser from "./src/Screens/AddUser";
+import SaveUser from "./src/Screens/SaveUserToDB";
 const Tab = createMaterialBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -81,14 +83,28 @@ export default function App() {
             name="NewUser"
             component={NewUser}
             options={{
-              title: "Cadastro de Rosto",
+              title: "Cadastro",
+            }}
+          />
+          <Stack.Screen
+            name="AddUser"
+            component={AddUser}
+            options={{
+              title: "Adicionar Usuário",
             }}
           />
           <Stack.Screen
             name="FaceCam"
             component={FaceCam}
             options={{
-              title: "Cadastro de Rosto",
+              title: "Coleta de Rosto",
+            }}
+          />
+          <Stack.Screen
+            name="SaveUser"
+            component={SaveUser}
+            options={{
+              title: "Salvar Usuário",
             }}
           />
         </Stack.Navigator>

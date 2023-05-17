@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Button, StyleSheet, View, Text, Switch, Alert } from "react-native";
+import { Button, StyleSheet, View, Text } from "react-native";
 import CustomButtom from "../components/Button";
 import InputField from "../components/InputField";
 
 const NewUser = ({ navigation }) => {
-  const [nome, setNome] = useState("");
+  const goToAddUser = () => {
+    navigation.navigate("AddUser");
+  };
+
   return (
-    <View>
-      <TextInput
-        style={styles.input}
-        placeholder="Digite o nome"
-        onChangeText={setNome}
-        value={nome}
-      />
+    <View style={styles.container}>
+      <CustomButtom Title="Adicionar pessoa" onPress={goToAddUser} />
     </View>
   );
 };
@@ -26,6 +24,14 @@ const styles = StyleSheet.create({
   },
   Button: {
     marginTop: 40,
+  },
+  TextStyle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  formBox: {
+    top: 0,
+    flexDirection: "column",
   },
 });
 
