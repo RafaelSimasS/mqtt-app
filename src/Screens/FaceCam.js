@@ -1,24 +1,32 @@
 import { useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
 
-import { Image } from "react-native";
+import { Image, ImageBackground } from "react-native";
 import { Camera, CameraType } from "expo-camera";
 import * as FaceDetector from "expo-face-detector";
 import * as ImagePicker from "expo-image-picker";
-
-import {
-  horizontalScale,
-  moderateScale,
-  verticalScale,
-} from "../components/Metrics";
-import CustomButtom from "../components/Button";
 import CircleButton from "../components/CircleButton";
+import { abs } from "react-native-reanimated";
 
+const horizontalPixels = Dimensions.get("window").width * (1 / 20);
+const verticalPixels = Dimensions.get("window").height * (1 / 50);
 const FaceCam = ({ route, navigation }) => {
   const { nome } = route.params;
   const [dataSend, setDataSend] = useState({ user: nome, images: {} });
 
+  const [hasPermission, setHasPermission] = useState(null);
+  const [capturedImage, setCapturedImage] = useState(null);
+  const cameraRef = useRef(null);
+
   const [type, setType] = useState(Camera.Constants.Type.front);
+
   const toggleCameraType = () => {
     setType((current) =>
       current === Camera.Constants.Type.back
@@ -26,74 +34,38 @@ const FaceCam = ({ route, navigation }) => {
         : Camera.Constants.Type.back
     );
   };
-  /* 
-  const [type, setType] = useState(CameraType.front);
-  const isFocused = useIsFocused();
-  const [permission, requestPermission] = Camera.useCameraPermissions();
 
-  if (!permission) {
-    // Camera permissions are still loading
-    return <View />;
-  }
-  if (!permission.granted) {
-    // Camera permissions are not granted yet
-    return (
-      <View style={styles.container}>
-        <Text style={{ textAlign: "center" }}>
-          Conceda acesso à câmera para continuar.
-        </Text>
-        <Button onPress={requestPermission} title="Permitir" />
-      </View>
-    );
-  }
-
-  const handleFaceDetect = ({ faces }) => {
+  const [counter, setCounter] = useState(0);
+  const handleFaceDetect = async ({ faces }) => {
     if (faces && faces.length > 0) {
-      console.log(JSON.stringify(faces));
+      if (counter < 10) {
+        await takePicture();
+        setCounter((prevCounter) => prevCounter + 1);
+      } else {
+        console.log("Já foram tiradas 10 fotos.");
+      }
+    } else {
+      console.log("Sem faces");
     }
   };
 
-  if (isFocused) {
-    return (
-      <View style={styles.container}>
-        <Camera
-          style={styles.camera}
-          type={type}
-          onFacesDetected={handleFaceDetect}
-          faceDetectorSettings={{
-            mode: FaceDetector.FaceDetectorMode.accurate,
-            detectLandmarks: FaceDetector.FaceDetectorLandmarks.none,
-            runClassifications: FaceDetector.FaceDetectorClassifications.all,
-            minDetectionInterval: 2500,
-            tracking: true,
-          }}
-        >
-          <CircleButton
-            onPress={toggleCameraType}
-            backgroundColor="#004751"
-            IconName="autorenew"
-            IconColor="#fff"
-            right={20}
-            bottom={20}
-          />
-        </Camera>
-      </View>
-    );
-  } else return <View />; */
-
-  const [hasPermission, setHasPermission] = useState(null);
-  const [capturedImage, setCapturedImage] = useState(null);
-  const cameraRef = useRef(null);
   const takePicture = async () => {
     if (cameraRef.current) {
-      const options = { quality: 0.5, base64: true };
+      const options = { quality: 1, base64: true };
       const data = await cameraRef.current.takePictureAsync(options);
       setCapturedImage(data.uri);
-      data;
-      let imageCount = Object.keys(dataSend.images).length;
-      dataSend.images[`image${imageCount + 1}`] = data.base64;
+      setDataSend((prevDataSend) => {
+        const imageCount = Object.keys(prevDataSend.images).length;
+        const updatedImages = {
+          ...prevDataSend.images,
+          [`image${imageCount + 1}`]: data.uri,
+        };
+        return { ...prevDataSend, images: updatedImages };
+      });
+      console.log(dataSend);
     }
   };
+
   const askForCameraPermission = async () => {
     const { status } = await Camera.requestCameraPermissionsAsync();
     setHasPermission(status === "granted");
@@ -110,56 +82,63 @@ const FaceCam = ({ route, navigation }) => {
   const goToSaveUser = () => {
     if (nome && nome.length > 0) navigation.navigate("SaveUser", { dataSend });
   };
+
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} type={type} ref={cameraRef}>
-        <CircleButton
-          onPress={toggleCameraType}
-          backgroundColor="#004751"
-          IconName="autorenew"
-          IconColor="#fff"
-          right={20}
-          bottom={20}
-        />
-        {!capturedImage && (
+      <Text style={styles.counter}>{counter} imagens tiradas</Text>
+      {!capturedImage && counter < 10 && (
+        <Camera
+          style={styles.camera}
+          type={type}
+          autoFocus={Camera.Constants.AutoFocus.on}
+          ref={cameraRef}
+          onFacesDetected={handleFaceDetect}
+          faceDetectorSettings={{
+            mode: FaceDetector.FaceDetectorMode.accurate,
+            detectLandmarks: FaceDetector.FaceDetectorLandmarks.none,
+            runClassifications: FaceDetector.FaceDetectorClassifications.none,
+            minDetectionInterval: 7500,
+            tracking: true,
+          }}
+        >
+          <CircleButton
+            onPress={toggleCameraType}
+            backgroundColor="#004751"
+            IconName="camera-flip"
+            IconColor="#fff"
+            right={horizontalPixels}
+            bottom={verticalPixels}
+          />
           <CircleButton
             onPress={takePicture}
             backgroundColor="#004751"
             IconName="camera"
             IconColor="#fff"
-            left={20}
-            bottom={20}
-            // style={styles.takePic}
+            left={horizontalPixels}
+            bottom={verticalPixels}
           />
-          // <TouchableOpacity style={styles.takePic} onPress={takePicture}>
-          //   <Text style={{ fontSize: 15, fontWeight: "bold" }}>Tirar foto</Text>
-          // </TouchableOpacity>
-        )}
-      </Camera>
-      {capturedImage && (
+        </Camera>
+      )}
+      {capturedImage && counter >= 10 && (
         <View style={styles.feed}>
-          <TouchableOpacity
-            style={[styles.buttonsRect, { bottom: 0 }]}
-            onPress={() => setCapturedImage(null)}
-          >
-            <Text style={styles.text}>Tirar novamente</Text>
-          </TouchableOpacity>
-          <Image
-            source={{ uri: capturedImage }}
-            style={{ width: 200, height: 200 }}
-          />
-          {/* <CircleButton
-                style={[styles.takePic, { width: 100, height: 100 }]}
-                IconName="camera"
-                IconColor="#fff"
-                onPress={() => setCapturedImage(null)}
-              /> */}
-          <TouchableOpacity
-            style={[styles.buttonsRect, { bottom: 0 }]}
-            onPress={() => setCapturedImage(null)}
-          >
-            <Text style={styles.text}>Finalizar Coleta</Text>
-          </TouchableOpacity>
+          <ImageBackground source={{ uri: capturedImage }} style={styles.feed}>
+            <CircleButton
+              onPress={() => setCapturedImage(null)}
+              backgroundColor="#004751"
+              IconName="camera-retake"
+              IconColor="#fff"
+              left={horizontalPixels}
+              bottom={verticalPixels}
+            />
+            <CircleButton
+              onPress={toggleCameraType}
+              backgroundColor="#004751"
+              IconName="account-check"
+              IconColor="#fff"
+              right={horizontalPixels}
+              bottom={verticalPixels}
+            />
+          </ImageBackground>
         </View>
       )}
     </View>
@@ -170,12 +149,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "space-between",
-    flexDirection: "column",
+    justifyContent: "center",
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
+    // flexDirection: "column",
   },
   camera: {
-    width: horizontalScale(370),
-    height: verticalScale(452),
+    flex: 1,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
+    aspectRatio: 9 / 16,
   },
   text: {
     fontSize: 19,
@@ -195,6 +178,17 @@ const styles = StyleSheet.create({
   feed: {
     flex: 1,
     flexDirection: "row",
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
+    aspectRatio: 9 / 16,
+  },
+  counter: {
+    position: "absolute",
+    fontSize: 19,
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center",
+    bottom: 0,
   },
 });
 
