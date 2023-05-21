@@ -1,31 +1,29 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Button,
-  TouchableOpacity,
-  Dimensions,
-} from "react-native";
-
-import { Image, ImageBackground } from "react-native";
-import { Camera, CameraType } from "expo-camera";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { ImageBackground } from "react-native";
+import { Camera } from "expo-camera";
 import * as FaceDetector from "expo-face-detector";
-import * as ImagePicker from "expo-image-picker";
+// import * as ImagePicker from "expo-image-picker";
 import CircleButton from "../components/CircleButton";
-import { abs } from "react-native-reanimated";
+import * as Speech from "expo-speech";
+import { encode, decode } from "base-64";
 
 const horizontalPixels = Dimensions.get("window").width * (1 / 20);
 const verticalPixels = Dimensions.get("window").height * (1 / 50);
 const FaceCam = ({ route, navigation }) => {
   const { nome } = route.params;
   const [dataSend, setDataSend] = useState({ user: nome, images: {} });
-
+  const LIMIT = 10;
   const [hasPermission, setHasPermission] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const cameraRef = useRef(null);
 
   const [type, setType] = useState(Camera.Constants.Type.front);
+
+  const retakePhotos = () => {
+    setCounter((prevCounter) => 0);
+    setDataSend({ user: nome, images: {} });
+  };
 
   const toggleCameraType = () => {
     setType((current) =>
@@ -35,10 +33,20 @@ const FaceCam = ({ route, navigation }) => {
     );
   };
 
+  const saveToDb = () => {
+    console.log("Salvando Usuário:");
+    navigation.navigate("SaveUser", { dataSend });
+  };
   const [counter, setCounter] = useState(0);
   const handleFaceDetect = async ({ faces }) => {
     if (faces && faces.length > 0) {
-      if (counter < 10) {
+      if (counter < LIMIT) {
+        Speech.speak(`${counter} fotos tiradas`, {
+          language: "pt-BR ",
+          pitch: 0.7,
+          rate: 0.85,
+          voice: "Enhanced",
+        });
         await takePicture();
         setCounter((prevCounter) => prevCounter + 1);
       } else {
@@ -53,16 +61,16 @@ const FaceCam = ({ route, navigation }) => {
     if (cameraRef.current) {
       const options = { quality: 1, base64: true };
       const data = await cameraRef.current.takePictureAsync(options);
-      setCapturedImage(data.uri);
+      const binBase64 = decode(data.base64);
       setDataSend((prevDataSend) => {
         const imageCount = Object.keys(prevDataSend.images).length;
         const updatedImages = {
           ...prevDataSend.images,
-          [`image${imageCount + 1}`]: data.uri,
+          [`image${imageCount + 1}`]: binBase64,
         };
         return { ...prevDataSend, images: updatedImages };
       });
-      console.log(dataSend);
+      setCapturedImage(data.uri);
     }
   };
 
@@ -79,51 +87,43 @@ const FaceCam = ({ route, navigation }) => {
   if (hasPermission === false) {
     return <Text>Sem acesso à câmera</Text>;
   }
-  const goToSaveUser = () => {
-    if (nome && nome.length > 0) navigation.navigate("SaveUser", { dataSend });
-  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.counter}>{counter} imagens tiradas</Text>
-      {!capturedImage && counter < 10 && (
-        <Camera
-          style={styles.camera}
-          type={type}
-          autoFocus={Camera.Constants.AutoFocus.on}
-          ref={cameraRef}
-          onFacesDetected={handleFaceDetect}
-          faceDetectorSettings={{
-            mode: FaceDetector.FaceDetectorMode.accurate,
-            detectLandmarks: FaceDetector.FaceDetectorLandmarks.none,
-            runClassifications: FaceDetector.FaceDetectorClassifications.none,
-            minDetectionInterval: 7500,
-            tracking: true,
-          }}
-        >
-          <CircleButton
-            onPress={toggleCameraType}
-            backgroundColor="#004751"
-            IconName="camera-flip"
-            IconColor="#fff"
-            right={horizontalPixels}
-            bottom={verticalPixels}
-          />
-          <CircleButton
-            onPress={takePicture}
-            backgroundColor="#004751"
-            IconName="camera"
-            IconColor="#fff"
-            left={horizontalPixels}
-            bottom={verticalPixels}
-          />
-        </Camera>
+      {counter < LIMIT && (
+        <View style={styles.viewCamera}>
+          <Text style={styles.counter}>{counter} imagens tiradas</Text>
+          <Camera
+            style={styles.camera}
+            type={type}
+            autoFocus={Camera.Constants.AutoFocus.on}
+            ref={cameraRef}
+            onFacesDetected={handleFaceDetect}
+            faceDetectorSettings={{
+              mode: FaceDetector.FaceDetectorMode.accurate,
+              detectLandmarks: FaceDetector.FaceDetectorLandmarks.none,
+              runClassifications: FaceDetector.FaceDetectorClassifications.none,
+              minDetectionInterval: 1500,
+              tracking: true,
+            }}
+          >
+            <CircleButton
+              onPress={toggleCameraType}
+              backgroundColor="#004751"
+              IconName="camera-flip"
+              IconColor="#fff"
+              right={horizontalPixels}
+              bottom={verticalPixels}
+            />
+          </Camera>
+        </View>
       )}
-      {capturedImage && counter >= 10 && (
+      {counter >= LIMIT && (
         <View style={styles.feed}>
+          <Text style={styles.counter}>Coleta Finalizada</Text>
           <ImageBackground source={{ uri: capturedImage }} style={styles.feed}>
             <CircleButton
-              onPress={() => setCapturedImage(null)}
+              onPress={retakePhotos}
               backgroundColor="#004751"
               IconName="camera-retake"
               IconColor="#fff"
@@ -131,7 +131,7 @@ const FaceCam = ({ route, navigation }) => {
               bottom={verticalPixels}
             />
             <CircleButton
-              onPress={toggleCameraType}
+              onPress={saveToDb}
               backgroundColor="#004751"
               IconName="account-check"
               IconColor="#fff"
@@ -152,7 +152,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
-    // flexDirection: "column",
+  },
+  viewCamera: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
   },
   camera: {
     flex: 1,
@@ -177,13 +183,12 @@ const styles = StyleSheet.create({
   },
   feed: {
     flex: 1,
-    flexDirection: "row",
+    flexDirection: "column",
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height,
     aspectRatio: 9 / 16,
   },
   counter: {
-    position: "absolute",
     fontSize: 19,
     fontWeight: "bold",
     color: "white",

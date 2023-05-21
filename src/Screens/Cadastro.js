@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { Button, StyleSheet, View, Text } from "react-native";
+import React from "react";
+import { StyleSheet, View } from "react-native";
 import CustomButtom from "../components/Button";
-import InputField from "../components/InputField";
 
 const NewUser = ({ navigation }) => {
   const goToAddUser = () => {
     navigation.navigate("AddUser");
   };
+  const goToTrainModel = () => {
+    navigation.navigate("TrainModel");
+  };
 
   return (
     <View style={styles.container}>
       <CustomButtom Title="Adicionar pessoa" onPress={goToAddUser} />
+      <CustomButtom Title="Treinar IA" onPress={goToTrainModel} />
     </View>
   );
 };
@@ -21,6 +24,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "column",
+    rowGap: 20,
   },
   Button: {
     marginTop: 40,

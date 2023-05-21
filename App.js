@@ -11,9 +11,11 @@ import FaceCam from "./src/Screens/FaceCam";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
+
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import AddUser from "./src/Screens/AddUser";
 import SaveUser from "./src/Screens/SaveUserToDB";
+import TrainModel from "./src/Screens/TrainModel";
 const Tab = createMaterialBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -105,6 +107,14 @@ export default function App() {
             component={SaveUser}
             options={{
               title: "Salvar Usuário",
+            }}
+          />
+
+          <Stack.Screen
+            name="TrainModel"
+            component={TrainModel}
+            options={{
+              title: "Treinar Reconhecimento",
             }}
           />
         </Stack.Navigator>

@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Button, StyleSheet, View, Text } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View, Text } from "react-native";
 import CustomButtom from "../components/Button";
 import InputField from "../components/InputField";
 
 const AddUser = ({ navigation }) => {
   const [nome, setNome] = useState("");
   const [invalidName, setInvalidName] = useState("");
+
   const goToCam = () => {
     if (nome && nome.length > 0) {
       setNome((prevNome) => {
@@ -19,8 +20,6 @@ const AddUser = ({ navigation }) => {
       setInvalidName(" (Nome Inválido)");
     }
   };
-  // useEffect(() => {
-  // }, [nome]);
 
   return (
     <View style={styles.container}>
