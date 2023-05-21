@@ -13,7 +13,7 @@ const verticalPixels = Dimensions.get("window").height * (1 / 50);
 const FaceCam = ({ route, navigation }) => {
   const { nome } = route.params;
   const [dataSend, setDataSend] = useState({ user: nome, images: {} });
-  const LIMIT = 10;
+  const LIMIT = 4;
   const [hasPermission, setHasPermission] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const cameraRef = useRef(null);
@@ -34,21 +34,20 @@ const FaceCam = ({ route, navigation }) => {
   };
 
   const saveToDb = () => {
-    console.log("Salvando Usuário:");
+    // console.log("Salvando Usuário:");
     navigation.navigate("SaveUser", { dataSend });
   };
   const [counter, setCounter] = useState(0);
   const handleFaceDetect = async ({ faces }) => {
     if (faces && faces.length > 0) {
       if (counter < LIMIT) {
+        await takePicture();
         Speech.speak(`${counter} fotos tiradas`, {
           language: "pt-BR ",
           pitch: 0.7,
           rate: 0.85,
           voice: "Enhanced",
         });
-        await takePicture();
-        setCounter((prevCounter) => prevCounter + 1);
       } else {
         console.log("Já foram tiradas 10 fotos.");
       }
@@ -71,6 +70,7 @@ const FaceCam = ({ route, navigation }) => {
         return { ...prevDataSend, images: updatedImages };
       });
       setCapturedImage(data.uri);
+      setCounter((prevCounter) => prevCounter + 1);
     }
   };
 
@@ -103,7 +103,7 @@ const FaceCam = ({ route, navigation }) => {
               mode: FaceDetector.FaceDetectorMode.accurate,
               detectLandmarks: FaceDetector.FaceDetectorLandmarks.none,
               runClassifications: FaceDetector.FaceDetectorClassifications.none,
-              minDetectionInterval: 1500,
+              minDetectionInterval: 2500,
               tracking: true,
             }}
           >

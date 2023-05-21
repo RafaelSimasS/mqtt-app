@@ -47,7 +47,7 @@ const SaveUser = ({ route, navigation }) => {
     if (isSaving) return;
 
     console.log("Enviando para o db!");
-    const HOST = "http://192.168.1.3:3333";
+    const HOST = "http://192.168.1.10:3333";
     setIsSaving(true);
     try {
       const response = await axios.post(HOST + "/create-user", dataSend);

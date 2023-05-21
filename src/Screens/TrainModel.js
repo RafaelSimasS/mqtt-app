@@ -22,7 +22,7 @@ const TrainModel = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const getTrainFile = async () => {
-    const HOST = "http://192.168.1.3:3333";
+    const HOST = "http://192.168.1.10:3333";
     setIsSaving(true);
     try {
       const response = await axios.get(HOST + "/train-model");
