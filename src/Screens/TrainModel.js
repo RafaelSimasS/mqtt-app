@@ -1,10 +1,6 @@
 import {
   View,
   StyleSheet,
-  Image,
-  ScrollView,
-  Dimensions,
-  Alert,
   ActivityIndicator,
   Text,
   Button,
@@ -14,18 +10,30 @@ import CustomButtom from "../components/Button";
 import axios from "axios";
 import Modal from "react-native-modal";
 import * as Speech from "expo-speech";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const TrainModel = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const getValueFromAsyncStorage = async (key) => {
+    try {
+      const value = await AsyncStorage.getItem(key);
+      return value;
+    } catch (error) {
+      console.log("Erro ao obter valor do AsyncStorage:", error);
+      return null;
+    }
+  };
   const getTrainFile = async () => {
-    const HOST = "http://192.168.1.10:3333";
     setIsSaving(true);
     try {
-      const response = await axios.get(HOST + "/train-model");
+      const HOST = await getValueFromAsyncStorage("HostName");
+      const PORT = await getValueFromAsyncStorage("port");
+      const hostPath = `http://${HOST}:${PORT}`;
+
+      const response = await axios.get(hostPath + "/train-model");
       console.log(response.data);
     } catch (error) {
       let errorValue = "";

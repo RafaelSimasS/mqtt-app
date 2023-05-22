@@ -10,10 +10,9 @@ import {
 import CustomButtom from "../components/Button";
 import { useEffect, useState } from "react";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { encode, decode } from "base-64";
-const horizontalPixels = Dimensions.get("window").width * (1 / 20);
-const verticalPixels = Dimensions.get("window").height * (1 / 50);
+import { encode } from "base-64";
 import { useNavigation } from "@react-navigation/native";
 
 const SaveUser = ({ route, navigation }) => {
@@ -42,15 +41,27 @@ const SaveUser = ({ route, navigation }) => {
       </ScrollView>
     );
   };
-
+  const getValueFromAsyncStorage = async (key) => {
+    try {
+      const value = await AsyncStorage.getItem(key);
+      return value;
+    } catch (error) {
+      console.log("Erro ao obter valor do AsyncStorage:", error);
+      return null;
+    }
+  };
   const saveUserToDb = async () => {
     if (isSaving) return;
 
     console.log("Enviando para o db!");
-    const HOST = "http://192.168.1.10:3333";
     setIsSaving(true);
     try {
-      const response = await axios.post(HOST + "/create-user", dataSend);
+      const HOST = await getValueFromAsyncStorage("HostName");
+      const PORT = await getValueFromAsyncStorage("port");
+      const hostPath = `http://${HOST}:${PORT}`;
+      console.log(hostPath);
+
+      const response = await axios.post(hostPath + "/create-user", dataSend);
       console.log("Res: " + response.data);
       showAlert("Sucesso", "Usuário salvo com sucesso!");
     } catch (error) {

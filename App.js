@@ -6,7 +6,7 @@ import HomeScreen from "./src/Screens/Home";
 import AjustesScreen from "./src/Screens/Ajustes";
 import NewUser from "./src/Screens/Cadastro";
 import FaceCam from "./src/Screens/FaceCam";
-
+import SettingsAPI from "./src/Screens/AjustesAPI";
 // Bibliotecas Externas:
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
@@ -30,6 +30,18 @@ function MyTabs({ navigation, route }) {
       backBehavior="history"
     >
       <Tab.Screen
+        name="SettingsAPI"
+        component={SettingsAPI} // Profile Screen
+        options={{
+          tabBarLabel: "API",
+          tabBarAccessibilityLabel: "Ajustes da API",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="database" color={color} size={30} />
+          ),
+          title: "API",
+        }}
+      />
+      <Tab.Screen
         name="Feed"
         component={HomeScreen} //Home Screen
         options={{
@@ -41,17 +53,16 @@ function MyTabs({ navigation, route }) {
           ),
         }}
       />
-
       <Tab.Screen
         name="Settings"
         component={AjustesScreen} // Profile Screen
         options={{
-          tabBarLabel: "Ajustes",
-          tabBarAccessibilityLabel: "Ajustes",
+          tabBarLabel: "MQTT",
+          tabBarAccessibilityLabel: "Ajustes do MQTT",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="cog" color={color} size={30} />
           ),
-          title: "Ajustes",
+          title: "MQTT",
         }}
       />
     </Tab.Navigator>

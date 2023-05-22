@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TextInput } from "react-native";
 
 function InputField(props) {
   return (
-    <View style={styles.InputBox}>
+    <View style={[styles.InputBox, props.style]}>
       <TextInput
         style={{ paddingLeft: 10 }}
         placeholderTextColor="#605f61"
